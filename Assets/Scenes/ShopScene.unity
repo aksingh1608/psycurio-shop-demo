@@ -1098,6 +1098,7 @@ GameObject:
   - component: {fileID: 507348125}
   - component: {fileID: 507348124}
   - component: {fileID: 507348123}
+  - component: {fileID: 507348127}
   m_Layer: 0
   m_Name: Item_Bottle
   m_TagString: Untagged
@@ -1200,6 +1201,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &507348127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 507348122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7dba008873b5eaf2293e284df134cd18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShelfItem
+  data: {fileID: 11400000, guid: a794093d435d7e31994559d3fa458417, type: 2}
 --- !u!1 &520541052
 GameObject:
   m_ObjectHideFlags: 0
@@ -1614,6 +1628,7 @@ GameObject:
   - component: {fileID: 1110672278}
   - component: {fileID: 1110672277}
   - component: {fileID: 1110672276}
+  - component: {fileID: 1110672280}
   m_Layer: 0
   m_Name: Item_Apple
   m_TagString: Untagged
@@ -1714,6 +1729,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1110672280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1110672275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7dba008873b5eaf2293e284df134cd18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShelfItem
+  data: {fileID: 11400000, guid: 84fd0221c77a1576f95e110b1f190d00, type: 2}
 --- !u!1 &1315571123
 GameObject:
   m_ObjectHideFlags: 0
@@ -1726,6 +1754,7 @@ GameObject:
   - component: {fileID: 1315571126}
   - component: {fileID: 1315571125}
   - component: {fileID: 1315571124}
+  - component: {fileID: 1315571128}
   m_Layer: 0
   m_Name: Item_Box
   m_TagString: Untagged
@@ -1826,6 +1855,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1315571128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1315571123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7dba008873b5eaf2293e284df134cd18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShelfItem
+  data: {fileID: 11400000, guid: 7d3d7107512f99fdc94f9024d4110103, type: 2}
 --- !u!1 &1332975942
 GameObject:
   m_ObjectHideFlags: 0
@@ -1869,6 +1911,7 @@ GameObject:
   - component: {fileID: 1402442192}
   - component: {fileID: 1402442191}
   - component: {fileID: 1402442190}
+  - component: {fileID: 1402442194}
   m_Layer: 0
   m_Name: Item_Can
   m_TagString: Untagged
@@ -1971,6 +2014,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1402442194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1402442189}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7dba008873b5eaf2293e284df134cd18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShelfItem
+  data: {fileID: 11400000, guid: 6a2bc9e37b2c7e28199b604891fc87fb, type: 2}
 --- !u!1 &1420695267
 GameObject:
   m_ObjectHideFlags: 0
@@ -2015,6 +2071,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1581182400}
   - component: {fileID: 1581182399}
+  - component: {fileID: 1581182401}
   m_Layer: 0
   m_Name: _Managers
   m_TagString: Untagged
@@ -2050,6 +2107,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1581182401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1581182398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: edad900832a409d8db7e0c43a6b2186f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopManager
+  counterSlots:
+  - {fileID: 1332975943}
+  - {fileID: 421177615}
+  - {fileID: 520541053}
+  - {fileID: 1098383323}
+  - {fileID: 857515128}
+  maxItems: 5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
