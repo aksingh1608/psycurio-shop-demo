@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -8,6 +9,14 @@ public class ShopManager : MonoBehaviour
 
     [SerializeField] private Transform[] counterSlots;
     [SerializeField] private int maxItems = 5;
+
+    [Header("Fly Effect")]
+    [SerializeField] private float flyDuration = 0.6f;
+    [SerializeField] private float arcHeight = 0.8f;
+    [SerializeField] private ParticleSystem landingParticlesPrefab;
+    [SerializeField] private AudioClip whooshClip;
+    [SerializeField] private AudioClip popClip;
+    [SerializeField] private AudioSource audioSource;
 
     private readonly List<ItemData> cart = new();
 
@@ -26,9 +35,37 @@ public class ShopManager : MonoBehaviour
         Transform slot = counterSlots[cart.Count];
         cart.Add(shelfItem.data);
 
-        GameObject copy = Instantiate(shelfItem.gameObject, slot.position, slot.rotation);
+        GameObject copy = Instantiate(shelfItem.gameObject,
+                                      shelfItem.transform.position,
+                                      shelfItem.transform.rotation);
         Destroy(copy.GetComponent<ShelfItem>());
+        Destroy(copy.GetComponent<Collider>());
         copy.name = shelfItem.data.itemName + "_OnCounter";
+        StartCoroutine(FlyToSlot(copy.transform, slot));
+    }
+
+    private IEnumerator FlyToSlot(Transform item, Transform slot)
+    {
+        if (whooshClip) audioSource.PlayOneShot(whooshClip);
+
+        Vector3 start = item.position;
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / flyDuration;
+            float eased = Mathf.Clamp01(t);
+            eased = eased * eased * (3f - 2f * eased);          // smoothstep
+            Vector3 pos = Vector3.Lerp(start, slot.position, eased);
+            pos.y += arcHeight * 4f * eased * (1f - eased);     // parabolic arc
+            item.position = pos;
+            item.Rotate(Vector3.up, 360f * Time.deltaTime);
+            yield return null;
+        }
+        item.SetPositionAndRotation(slot.position, slot.rotation);
+
+        if (popClip) audioSource.PlayOneShot(popClip);
+        if (landingParticlesPrefab)
+            Instantiate(landingParticlesPrefab, slot.position, Quaternion.identity);
     }
 
     public string GetReceiptText()
