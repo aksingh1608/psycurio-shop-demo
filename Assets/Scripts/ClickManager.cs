@@ -1,26 +1,32 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// Central mouse-click raycaster. Finds IClickable on the hit object
-/// (or its parents) and invokes it.
-/// </summary>
 public class ClickManager : MonoBehaviour
 {
     [SerializeField] private float maxDistance = 50f;
     private Camera cam;
+    private HoverHighlight hovered;
 
     private void Awake() => cam = Camera.main;
 
     private void Update()
     {
-        if (Mouse.current == null || !Mouse.current.leftButton.wasPressedThisFrame)
-            return;
+        if (Mouse.current == null) return;
 
         Ray ray = cam.ScreenPointToRay(Mouse.current.position.ReadValue());
-        if (Physics.Raycast(ray, out RaycastHit hit, maxDistance))
+        bool hitSomething = Physics.Raycast(ray, out RaycastHit hit, maxDistance);
+
+        HoverHighlight newHover = hitSomething
+            ? hit.collider.GetComponentInParent<HoverHighlight>()
+            : null;
+        if (newHover != hovered)
         {
-            hit.collider.GetComponentInParent<IClickable>()?.OnClicked();
+            if (hovered != null) hovered.SetHovered(false);
+            hovered = newHover;
+            if (hovered != null) hovered.SetHovered(true);
         }
+
+        if (hitSomething && Mouse.current.leftButton.wasPressedThisFrame)
+            hit.collider.GetComponentInParent<IClickable>()?.OnClicked();
     }
 }
