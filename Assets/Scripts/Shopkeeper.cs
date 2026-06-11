@@ -6,10 +6,18 @@ public class Shopkeeper : MonoBehaviour, IClickable
     private static readonly int WaveTrigger = Animator.StringToHash("Wave");
     private Animator animator;
 
+    [SerializeField] private SpeechBubble speechBubble;
+
     private void Awake() => animator = GetComponent<Animator>();
 
     public void OnClicked()
     {
         animator.SetTrigger(WaveTrigger);
+    }
+
+    public void Speak(string text, float duration = 4f)
+    {
+        if (speechBubble != null)
+            speechBubble.Show(text, duration);
     }
 }
