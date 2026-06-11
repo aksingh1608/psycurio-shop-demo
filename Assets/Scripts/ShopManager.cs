@@ -9,6 +9,7 @@ public class ShopManager : MonoBehaviour
 
     [SerializeField] private Transform[] counterSlots;
     [SerializeField] private int maxItems = 5;
+    [SerializeField] private Shopkeeper shopkeeper;
 
     [Header("Fly Effect")]
     [SerializeField] private float flyDuration = 0.6f;
@@ -19,6 +20,8 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
 
     private readonly List<ItemData> cart = new();
+    private readonly List<GameObject> spawnedItems = new();
+    private bool clearing;
 
     private void Awake() => Instance = this;
 
@@ -26,9 +29,11 @@ public class ShopManager : MonoBehaviour
 
     public void TryBuy(ShelfItem shelfItem)
     {
+        if (clearing) return;
+
         if (CartFull)
         {
-            Debug.Log("Counter is full (5 items max).");
+            shopkeeper.Speak("My counter is full!\nClick the register to check out.");
             return;
         }
 
@@ -39,9 +44,39 @@ public class ShopManager : MonoBehaviour
                                       shelfItem.transform.position,
                                       shelfItem.transform.rotation);
         Destroy(copy.GetComponent<ShelfItem>());
+        Destroy(copy.GetComponent<HoverHighlight>());
         Destroy(copy.GetComponent<Collider>());
         copy.name = shelfItem.data.itemName + "_OnCounter";
+        spawnedItems.Add(copy);
         StartCoroutine(FlyToSlot(copy.transform, slot));
+    }
+
+    public void Checkout()
+    {
+        if (clearing) return;
+
+        if (cart.Count == 0)
+        {
+            shopkeeper.Speak("You haven't picked anything yet!\nClick an item on the shelf.");
+            return;
+        }
+
+        shopkeeper.Speak(GetReceiptText(), 4f);
+        StartCoroutine(FinishSale());
+    }
+
+    private IEnumerator FinishSale()
+    {
+        clearing = true;
+        yield return new WaitForSeconds(4.5f);
+
+        foreach (GameObject go in spawnedItems)
+            if (go != null) Destroy(go);
+        spawnedItems.Clear();
+        cart.Clear();
+
+        shopkeeper.Speak("Thank you!\nNext customer, please!", 2.5f);
+        clearing = false;
     }
 
     private IEnumerator FlyToSlot(Transform item, Transform slot)
@@ -54,13 +89,15 @@ public class ShopManager : MonoBehaviour
         {
             t += Time.deltaTime / flyDuration;
             float eased = Mathf.Clamp01(t);
-            eased = eased * eased * (3f - 2f * eased);          // smoothstep
+            eased = eased * eased * (3f - 2f * eased);
             Vector3 pos = Vector3.Lerp(start, slot.position, eased);
-            pos.y += arcHeight * 4f * eased * (1f - eased);     // parabolic arc
+            pos.y += arcHeight * 4f * eased * (1f - eased);
+            if (item == null) yield break;
             item.position = pos;
             item.Rotate(Vector3.up, 360f * Time.deltaTime);
             yield return null;
         }
+        if (item == null) yield break;
         item.SetPositionAndRotation(slot.position, slot.rotation);
 
         if (popClip) audioSource.PlayOneShot(popClip);
@@ -68,11 +105,8 @@ public class ShopManager : MonoBehaviour
             Instantiate(landingParticlesPrefab, slot.position, Quaternion.identity);
     }
 
-    public string GetReceiptText()
+    private string GetReceiptText()
     {
-        if (cart.Count == 0)
-            return "You haven't picked anything yet!";
-
         float total = 0f;
         var counts = new Dictionary<string, int>();
         foreach (ItemData item in cart)
