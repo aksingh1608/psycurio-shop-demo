@@ -10,14 +10,17 @@ public class Shopkeeper : MonoBehaviour, IClickable
 
     private void Awake() => animator = GetComponent<Animator>();
 
-    public void OnClicked()
-    {
-        animator.SetTrigger(WaveTrigger);
-    }
+    public void OnClicked() => Wave();
+
+    public void Wave() => animator.SetTrigger(WaveTrigger);
 
     public void Speak(string text, float duration = 4f)
     {
-        if (speechBubble != null)
-            speechBubble.Show(text, duration);
+        if (speechBubble != null) speechBubble.Show(text, duration);
+    }
+
+    public void SpeakPersistent(string text)
+    {
+        if (speechBubble != null) speechBubble.ShowPersistent(text);
     }
 }

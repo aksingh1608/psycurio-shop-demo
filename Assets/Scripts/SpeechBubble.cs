@@ -17,10 +17,25 @@ public class SpeechBubble : MonoBehaviour
 
     public void Show(string text, float duration)
     {
-        gameObject.SetActive(true);
-        label.text = text;
+        SetText(text);
         if (hideRoutine != null) StopCoroutine(hideRoutine);
         hideRoutine = StartCoroutine(HideAfter(duration));
+    }
+
+    /// <summary>Shows text that stays until Hide() or another Show replaces it.</summary>
+    public void ShowPersistent(string text)
+    {
+        SetText(text);
+        if (hideRoutine != null) StopCoroutine(hideRoutine);
+        hideRoutine = null;
+    }
+
+    public void Hide() => gameObject.SetActive(false);
+
+    private void SetText(string text)
+    {
+        gameObject.SetActive(true);
+        label.text = text;
     }
 
     private IEnumerator HideAfter(float t)

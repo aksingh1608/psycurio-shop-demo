@@ -5,6 +5,6 @@ public class CashRegister : MonoBehaviour, IClickable
 {
     public void OnClicked()
     {
-        ShopManager.Instance.Checkout();
+        ShopManager.Instance.OnRegisterClicked();
     }
 }
