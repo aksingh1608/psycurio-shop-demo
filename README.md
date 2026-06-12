@@ -1,6 +1,6 @@
 # PsyCurio Shop Demo 🛒
 
-A small interactive Unity shop scene built for the PsyCurio test task: click items on a shelf to place them on the counter, greet the shopkeeper, and check out at the cash register — all with a fixed camera and mouse clicks, playable entirely in the Unity editor.
+A small interactive Unity shop scene built for the PsyCurio test task: pick items from a shelf, manage your cart directly on the counter, chat with the shopkeeper, and check out through a friendly two-step purchase flow — all with a fixed camera and mouse clicks, playable entirely in the Unity editor.
 
 ![Demo](docs/demo.gif)
 
@@ -15,7 +15,7 @@ A small interactive Unity shop scene built for the PsyCurio test task: click ite
 | **Build Target** | Android (.apk), IL2CPP, ARM64 — build verified |
 | **Input** | Unity Input System (new), mouse only |
 | **Character & Animations** | Mixamo (idle, wave) |
-| **UI** | TextMeshPro (world-space speech bubble + screen-space hints) |
+| **UI** | TextMeshPro (world-space speech bubble, tooltips, hint bar, checkout buttons) |
 
 The scene requires no XR packages and runs fully in the editor, as specified in the task.
 
@@ -23,12 +23,16 @@ The scene requires no XR packages and runs fully in the editor, as specified in 
 
 1. Clone the repository and open the project in **Unity 6.3 LTS** (Unity Hub → Add → select the folder).
 2. Open the scene: `Assets/Scenes/ShopScene.unity`.
-3. Press **Play**.
+3. Press **Play** — the shopkeeper greets you with a wave.
 
 ### Controls
-- **Left-click a shelf item** → a copy flies onto the counter (up to 5 items, duplicates allowed; prices are shown on the shelf tags)
-- **Left-click the shopkeeper** → she waves at you
-- **Left-click the cash register** → the shopkeeper summarizes your purchase and the total price in a speech bubble; a few seconds later the counter clears for the next customer
+- **Hover** any item → tooltip with its name and price
+- **Left-click a shelf item** → a copy flies onto the counter (max 5, duplicates allowed)
+- **Left-click an item on the counter** → removes it from your cart (remaining items close the gap)
+- **Left-click the shopkeeper** → she waves and says hi
+- **Left-click the register or the Checkout button** → itemized receipt appears and the shopkeeper asks *"Shall I pack everything up for you?"*
+- **"Yes, pack it up!"** → she confirms the final receipt, thanks you with a wave, and the counter clears
+- **Reset Counter** → clears the cart instantly for a fresh start
 
 ### Android Build
 `File → Build Profiles → Android → Build`. The project is configured for IL2CPP / ARM64 with ShopScene in the scene list; a successful `.apk` build has been verified locally (interactions are mouse-based and editor-only, per the task brief).
@@ -38,33 +42,62 @@ The scene requires no XR packages and runs fully in the editor, as specified in 
 **Core task**
 - Shelf with multiple purchasable items; clicking places a copy on the counter (max 5)
 - Shopkeeper (Mixamo character) idling beside the counter; waves when clicked
-- Cash register click → speech bubble with itemized purchase summary (with quantity grouping, e.g. "2x Apple") and total price
+- Register click → itemized purchase summary with per-line prices and total
 
 **Additional task (chosen: effects)**
 - Purchased items **fly from the shelf to the counter** along a parabolic arc with a spin
 - **Particle burst** and **sound effects** (whoosh in flight, pop on landing)
 
-**Extra UX features** (added because the brief emphasizes usability and user experience)
-- Hover highlight on all interactive objects — items and register grow slightly under the cursor, signaling clickability
-- Price tags on the shelf so the user knows costs before buying
-- Shopkeeper gives spoken feedback for edge cases: counter full, checkout with an empty counter
-- Complete shopping loop: after checkout she thanks the customer and the counter resets, so the demo can be replayed endlessly without restarting
-- On-screen control hints at the bottom of the screen
-- Polished look: warm lighting with soft shadows, ACES tonemapping, bloom and vignette via URP post-processing
+**Cart & checkout UX**
+- **Itemized live receipt**: every line shows quantity × item and its price, with the total at the end; the receipt updates in real time as items are added or removed
+- **Removable cart**: clicking any item on the counter removes it; remaining items slide together
+- **Two-step conversational checkout**: receipt + *"Shall I pack everything up for you?"* → explicit **"Yes, pack it up!"** confirmation (no surprise auto-checkout); the shopkeeper waves goodbye with the final receipt
+- **Reset Counter** button to clear everything at once
+- Checkout/Reset buttons appear only when the cart has items; the receipt opens automatically when the counter is full
+
+**General UX & presentation**
+- Welcome greeting with a wave when the scene starts
+- Hover tooltips (name + price on shelf items, "click to remove" on counter items) and hover scaling on every interactive object
+- Readable price labels on the shelf with backing plates
+- Spoken feedback for all edge cases (counter full, empty checkout, emptied cart)
+- Two-line on-screen hint bar explaining every control
+- Composed camera angle and dressed scene: paneled shelf furniture, enclosing walls, baseboard trim, warm lighting with soft shadows, ACES tonemapping, bloom and vignette
+
+## Improvements After Feedback
+
+All review points from the first submission were addressed:
+
+| Feedback | Change |
+|---|---|
+| Prices barely readable | Compact bold price labels on white plates + hover tooltips with name and price |
+| Presentation/camera | New diagonal camera composition; shelf rebuilt as furniture with side panels; side walls and baseboards enclose the room |
+| Wave animation cut off | Animator transition exit time corrected so the wave plays through fully |
+| Speech text too close to the head | Speech bubble repositioned and given a solid readable background |
+| Receipt as itemized list | Per-line quantities and prices with the total at the end |
+| Automatic checkout was surprising | Replaced with an explicit two-step confirmation ("Shall I pack everything up?" → "Yes, pack it up!") plus a Reset option |
+| Removing items from the cart | Counter items are clickable to remove, with tooltip affordance |
+| Bubble should react to state changes | The receipt is live — it refreshes immediately on every cart change |
 
 ## Architecture Overview
 
 ```
-ClickManager  ──raycast──▶  IClickable (interface)
-                              ├── ShelfItem ──▶ ShopManager (cart, spawning, fly effect, audio)
-                              ├── Shopkeeper (wave animation, Speak)
-                              └── CashRegister ──▶ ShopManager.Checkout()
-                                                      └─▶ Shopkeeper.Speak ──▶ SpeechBubble (world-space, billboarded)
+ClickManager ──raycast──▶ IClickable (click)  &  IHoverInfo (tooltips)  &  HoverHighlight (scale)
+                            ├── ShelfItem ───▶ ShopManager.TryBuy
+                            ├── CounterItem ─▶ ShopManager.RemoveItem
+                            ├── Shopkeeper (wave, speech)
+                            └── CashRegister ▶ ShopManager.OnRegisterClicked
+
+ShopManager (cart state machine: Shopping ⇄ Confirming)
+   ├─ counter slots, fly effect, particles, audio
+   ├─ Checkout / Reset UI buttons (shown only when cart has items)
+   └─ Shopkeeper.Speak / SpeakPersistent ──▶ SpeechBubble (world-space, billboarded, live-updating)
+
+Tooltip (screen-space, follows cursor, driven by ClickManager hover)
 ```
 
-- A single `ClickManager` raycasts mouse clicks and hover; anything interactive implements `IClickable` — adding new interactive objects requires no changes to input code.
-- Item definitions (`name`, `price`) are **ScriptableObjects** (`ItemData`), so the shop's inventory is data-driven and editable without touching code.
-- `ShopManager` is the single source of truth for the cart, counter slots, and purchase flow.
+- One `ClickManager` raycasts clicks and hover; interactive behavior is added by implementing small interfaces (`IClickable`, `IHoverInfo`) — no input code changes needed for new objects.
+- Item definitions (`name`, `price`) are **ScriptableObjects** (`ItemData`), so the inventory is data-driven.
+- `ShopManager` owns the cart as a simple two-state machine (Shopping → Confirming), which keeps the conversational checkout logic explicit and testable.
 
 ## AI Tool Disclosure
 
@@ -87,7 +120,7 @@ Ways I would extend this demo toward PsyCurio's domain, given more time:
 ## Credits
 
 - Character and animations: [Mixamo](https://www.mixamo.com) (Adobe)
-- Sound effects: [freesound.org](https://freesound.org) — *(CC0; authors: ADD_AUTHOR_NAMES_HERE)*
+- Sound effects: [freesound.org](https://freesound.org) — 
 - Built with Unity 6.3 LTS & Universal Render Pipeline
 
 ---
