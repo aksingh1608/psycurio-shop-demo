@@ -50,7 +50,7 @@ public class ShopManager : MonoBehaviour
                                       shelfItem.transform.position,
                                       shelfItem.transform.rotation);
         Destroy(copy.GetComponent<ShelfItem>());
-        copy.AddComponent<CounterItem>();
+        copy.AddComponent<CounterItem>().Init(shelfItem.data);
         Collider col = copy.GetComponent<Collider>();
         col.enabled = false;
         copy.name = shelfItem.data.itemName + "_OnCounter";

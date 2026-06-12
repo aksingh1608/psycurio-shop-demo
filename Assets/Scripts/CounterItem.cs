@@ -1,10 +1,13 @@
 using UnityEngine;
 
-/// <summary>An item placed on the counter; click to remove it from the cart.</summary>
-public class CounterItem : MonoBehaviour, IClickable
+public class CounterItem : MonoBehaviour, IClickable, IHoverInfo
 {
-    public void OnClicked()
-    {
-        ShopManager.Instance.RemoveItem(gameObject);
-    }
+    private ItemData data;
+
+    public void Init(ItemData itemData) => data = itemData;
+
+    public string HoverText =>
+        data != null ? $"{data.itemName} – click to remove" : "Click to remove";
+
+    public void OnClicked() => ShopManager.Instance.RemoveItem(gameObject);
 }
